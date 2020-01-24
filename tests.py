@@ -75,7 +75,7 @@ print(loss(s))
 # MCMC Sampling, in particular, we are using the pCN algorithm. 
 # Modified from Alexander Nenninger's Bachelor's Thesis.
 
-n_samples = 10**4
+n_samples = 5*10**4
 beta = 0.01
 
 chain = []
