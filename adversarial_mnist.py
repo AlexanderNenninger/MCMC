@@ -16,7 +16,6 @@ import matplotlib.pyplot as plt
 %matplotlib inline
 matplotlib.rcParams['figure.figsize'] = [15, 15]
 # %%
-probs = .5
 size = 28
 shape = (size,)*2
 length = size**2
@@ -28,17 +27,25 @@ sample_label = labels.iloc[sample_idx].to_numpy().reshape(-1, 10)
 print(sample_label.argmax())
 plt.imshow(sample_image[0,:,:,0])
 plt.colorbar()
-# %%
 
+# %%
 class GPPrior(object):
-    def __init__(self, shape=shape):
-        self.batch_size = 4
+    '''Sample from a Gaussian Processe on the unit square [0,1]^2
+    '''
+    def __init__(self, shape=shape, **kwargs):
+        '''
+        kwargs: batch_size=4, length_scale=.05, amplitude=1
+        '''
+        
+        self.batch_size = kwargs.pop('batch_size', 4)
+        self.length_scale = kwargs.pop('length_scale', .05)
+        self.amplitude = kwargs.pop('amplitude', 1)
+
         self.length = np.product(shape)
         self.batch_shape = (self.batch_size, ) + shape + (1,)
 
         self.index_points = np.indices(shape, dtype=np.float32).reshape(2, self.length).T / shape[0]
-        
-        self.kernel = tfp.math.psd_kernels.ExponentiatedQuadratic(1, .03, 1)
+        self.kernel = tfp.math.psd_kernels.ExponentiatedQuadratic(self.amplitude, self.length_scale, 1)
         
         km = self.kernel.tensor(self.index_points, self.index_points, 1, 1) + 1e-4*tf.eye(length)
         self.sigma = tf.linalg.cholesky(km)
@@ -47,10 +54,11 @@ class GPPrior(object):
     
     def sample(self):
         sample = self.base_distribution.sample(self.batch_size)
-        return tf.reshape(
+        sample = tf.reshape(
             tf.einsum("ij, kj -> ki", self.sigma, sample), 
             self.batch_shape
         )
+        return sample
 
 prior = GPPrior()
 s = prior.sample()
@@ -75,7 +83,7 @@ print(loss(s))
 # MCMC Sampling, in particular, we are using the pCN algorithm. 
 # Modified from Alexander Nenninger's Bachelor's Thesis.
 
-n_samples = 5*10**4
+n_samples = 5*10**2
 beta = 0.01
 
 chain = []
@@ -103,5 +111,5 @@ acc_prob = np.mean(acc)
 print(acc_prob)
 print(model.predict(result).argmax(axis=1))
 plt.imshow(result.numpy().mean(axis=(0,-1)))
-    
+plt.colorbar()
 # %%
