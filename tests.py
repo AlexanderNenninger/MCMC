@@ -1,11 +1,11 @@
 #%%
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 import tensorflow_probability as tfp
 tfd = tfp.distributions
-tfb = tfp.bijectors
-ed = tfp.edward2
+
+# assert tf.test.is_gpu_available()
+# assert tf.test.is_built_with_cuda()
 
 from utils.forward_op import model
 from utils.data_import import load_observations
@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 %matplotlib inline
 matplotlib.rcParams['figure.figsize'] = [15, 15]
 # %%
+
 probs = .5
 size = 28
 shape = (size,)*2
@@ -103,5 +104,6 @@ acc_prob = np.mean(acc)
 print(acc_prob)
 print(model.predict(result).argmax(axis=1))
 plt.imshow(result.numpy().mean(axis=(0,-1)))
-    
+
+
 # %%
