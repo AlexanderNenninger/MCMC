@@ -5,6 +5,14 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
 
+
+# GPU Config for RTX Cards
+try:
+    physical_devices = tf.config.list_physical_devices('GPU') 
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
+except IndexError:
+    print("GPU not used. Resorting to CPU")
+
 # Creating a Sequential Model and adding the layers
 input_shape = (28, 28, 1)
 model = Sequential()
@@ -40,6 +48,7 @@ if __name__=='__main__':
     model.compile(optimizer='adam', 
             loss='sparse_categorical_crossentropy', 
             metrics=['accuracy'])
-    model.fit(x=x_train,y=y_train, epochs=5)
+
+    model.fit(x=x_train,y=y_train, epochs=5, batch_size=4)
     model.save_weights(str(MODEL_PATH.resolve()))
     model.evaluate(x_test, y_test)

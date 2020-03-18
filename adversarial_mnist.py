@@ -1,11 +1,11 @@
 #%%
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 import tensorflow_probability as tfp
 tfd = tfp.distributions
-tfb = tfp.bijectors
-ed = tfp.edward2
+
+# assert tf.test.is_gpu_available()
+# assert tf.test.is_built_with_cuda()
 
 from utils.forward_op import model
 from utils.data_import import load_observations
